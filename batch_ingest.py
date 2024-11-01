@@ -22,7 +22,7 @@ def ingest_data():
 
     s3 = S3FileSystem()
     # S3 bucket directory
-    DIR = 's3://ece5984-s3-pisanopaige/DataEngineeringProject/'
+    DIR = 's3://ece5984-s3-pisanopaige/DataEngineeringProject/batch_ingest'
 
     # Push train and test data to S3 bucket as pickle files
     with s3.open('{}/{}'.format(DIR, 'train_data.pkl'), 'wb') as f_train:
