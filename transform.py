@@ -37,6 +37,17 @@ def transform_data():
     smote = SMOTE()
     X_train_balanced, y_train_balanced = smote.fit_resample(X_train_scaled, y_train)
 
+    s3 = S3FileSystem()
+    # S3 bucket directory
+    DIR = 's3://ece5984-s3-pisanopaige/DataEngineeringProject/transformed_data'
+    # Push train and test transformed data to S3 bucket as pickle files
+    with s3.open('{}/{}'.format(DIR, 'X_train_transformed.pkl'), 'wb') as f_X:
+        pickle.dump(X_train_balanced, f_X)
+    with s3.open('{}/{}'.format(DIR, 'y_train_transformed.pkl'), 'wb') as f_y:
+        pickle.dump(y_train_balanced, f_y)
+    with s3.open('{}/{}'.format(DIR, 'test_data_transformed.pkl'), 'wb') as f_test_out:
+        pickle.dump(test_data, f_test_out)
+
     # Return the transformed datasets
     return X_train_balanced, y_train_balanced, test_data
 
