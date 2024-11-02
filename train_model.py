@@ -15,10 +15,10 @@ logging.basicConfig(
 
 def upload_log_to_s3():
     s3 = S3FileSystem()
-    # S3 bucket directory
+    # S3 bucket directory for logs
     DIR = 's3://ece5984-s3-pisanopaige/DataEngineeringProject/logs'
 
-    # Push log file to S3 bucket
+    # Upload log file to S3
     with s3.open(f'{DIR}/{log_filename}', 'wb') as f:
         with open(log_filename, 'rb') as local_file:
             f.write(local_file.read())
@@ -29,7 +29,7 @@ def log_model_metrics(metrics):
 
 def train_model():
     s3 = S3FileSystem()
-    # S3 bucket directory
+    # S3 bucket directory for data
     DIR = 's3://ece5984-s3-pisanopaige/DataEngineeringProject/transformed_data'
 
     # Load transformed train data
@@ -70,8 +70,19 @@ def train_model():
     }
     log_model_metrics(metrics)
 
+    # Initialize S3 file system and specify the S3 bucket directory for model outputs
+    DIR = 's3://ece5984-s3-pisanopaige/DataEngineeringProject/model_outputs'
+
+    # Save predictions and model directly to S3
+    with s3.open('{}/{}'.format(DIR, 'predictions.pkl'), 'wb') as f_pred:
+        f_pred.write(pickle.dumps(predictions))
+
+    with s3.open('{}/{}'.format(DIR, 'random_forest_model.pkl'), 'wb') as f_model:
+        f_model.write(pickle.dumps(model))
+
     return model
 
 if __name__ == "__main__":
     # Train the model and log metrics
     model = train_model()
+
