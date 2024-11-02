@@ -73,7 +73,7 @@ def train_model():
     # Initialize S3 file system and specify the S3 bucket directory for model outputs
     DIR = 's3://ece5984-s3-pisanopaige/DataEngineeringProject/model_outputs'
 
-    # Save predictions and model directly to S3
+    # Push predictions and model directly to S3 bucket
     with s3.open('{}/{}'.format(DIR, 'predictions.pkl'), 'wb') as f_pred:
         f_pred.write(pickle.dumps(predictions))
 

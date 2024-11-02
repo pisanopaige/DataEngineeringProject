@@ -72,8 +72,16 @@ def visualize_data():
 
     # Adjust layout
     plt.tight_layout()
-    plt.show()
 
+    # Initialize S3 file system and specify the S3 bucket directory for model outputs
+    VISUALIZATION_DIR = 's3://ece5984-s3-pisanopaige/DataEngineeringProject/visualizations'
+
+    # Push plots to S3 bucket
+    plt.savefig('fraud_visualization_plots.png')
+
+    with s3.open('{}/{}'.format(VISUALIZATION_DIR, 'fraud_visualization_plots.png'), 'wb') as f:
+        with open('fraud_visualization_plots.png', 'rb') as local_file:
+            f.write(local_file.read())
 
 if __name__ == "__main__":
     # Call the visualize_data function
