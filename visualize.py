@@ -9,8 +9,8 @@ from s3fs import S3FileSystem
 def visualize_data():
     s3 = S3FileSystem()
     # S3 bucket directories
-    MODEL_DIR= 's3://ece5984-s3-pisanopaige/DataEngineeringProject/model_outputs'
-    DATA_DIR = 's3://ece5984-s3-pisanopaige/DataEngineeringProject/transformed_data'
+    MODEL_DIR= 's3://ece5984-s3-pisanopaige/DataEngineeringProject/model_outputs/'
+    DATA_DIR = 's3://ece5984-s3-pisanopaige/DataEngineeringProject/transformed_data/'
 
     # Load the trained model
     with s3.open('{}/{}'.format(MODEL_DIR, 'random_forest_model.pkl'), 'rb') as f_model:
@@ -74,7 +74,7 @@ def visualize_data():
     plt.tight_layout()
 
     # Initialize S3 file system and specify the S3 bucket directory for model outputs
-    VISUALIZATION_DIR = 's3://ece5984-s3-pisanopaige/DataEngineeringProject/visualizations'
+    VISUALIZATION_DIR = 's3://ece5984-s3-pisanopaige/DataEngineeringProject/visualizations/'
 
     # Push plots to S3 bucket
     plt.savefig('fraud_visualization_plots.png')

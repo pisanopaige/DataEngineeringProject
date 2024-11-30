@@ -20,11 +20,11 @@ def upload_to_s3(local_file, s3_path):
 
 def train_and_save_random_forest():
     s3 = S3FileSystem()
-    DIR = 's3://ece5984-s3-pisanopaige/DataEngineeringProject/feature_extraction'
+    DIR = 's3://ece5984-s3-pisanopaige/DataEngineeringProject/feature_extraction/'
     with s3.open(f'{DIR}/X_train_features.pkl', 'rb') as f_X:
         X_train_features = pickle.load(f_X)
 
-    DIR_transformed = 's3://ece5984-s3-pisanopaige/DataEngineeringProject/transformed_data'
+    DIR_transformed = 's3://ece5984-s3-pisanopaige/DataEngineeringProject/transformed_data/'
     with s3.open(f'{DIR_transformed}/y_train_transformed.pkl', 'rb') as f_y:
         y_train_balanced = pickle.load(f_y)
     with s3.open(f'{DIR_transformed}/test_data_transformed.pkl', 'rb') as f_test:
@@ -49,7 +49,7 @@ def train_and_save_random_forest():
         with open(model_path, 'wb') as f_model:
             pickle.dump(model, f_model)
 
-        s3_dir = 's3://ece5984-s3-pisanopaige/DataEngineeringProject/model_outputs'
+        s3_dir = 's3://ece5984-s3-pisanopaige/DataEngineeringProject/model_outputs/'
         upload_to_s3(model_path, f'{s3_dir}/random_forest_model.pkl')
 
     return model
