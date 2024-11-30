@@ -1,19 +1,19 @@
+from sklearn.preprocessing import LabelEncoder
 import pandas as pd
 from s3fs import S3FileSystem
 import pickle
 import numpy as np
 from imblearn.over_sampling import SMOTE
-from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.preprocessing import StandardScaler
 from datetime import datetime
 
 def transform_data():
     s3 = S3FileSystem()
-    # S3 bucket directory
     DIR = 's3://ece5984-s3-pisanopaige/DataEngineeringProject/batch_ingest/'
 
-    # Load train and test data from S3 bucket
-    train_data = np.load(s3.open('{}/{}'.format(DIR, 'train_data.pkl')), allow_pickle=True)  # insert here
-    test_data = np.load(s3.open('{}/{}'.format(DIR, 'test_data.pkl')), allow_pickle=True)  # insert here
+    # Load train and test data from S3 bucket (pickle files)
+    train_data = np.load(s3.open('{}/{}'.format(DIR, 'train_data.pkl')), allow_pickle=True)  # load train data
+    test_data = np.load(s3.open('{}/{}'.format(DIR, 'test_data.pkl')), allow_pickle=True)  # load test data
 
     # Remove any null values
     train_data.dropna(inplace=True)
@@ -50,9 +50,12 @@ def transform_data():
     # Encode categorical features (merchant, category, gender, job, state, city)
     categorical_cols = ['merchant', 'category', 'gender', 'job', 'state', 'city']
     encoder = LabelEncoder()
+
     for col in categorical_cols:
-        train_data[col] = encoder.fit_transform(train_data[col])
-        test_data[col] = encoder.transform(test_data[col])  # Ensure same encoding for test data
+        # Fit on train data and transform both train and test
+        encoder.fit(train_data[col])  # Fit only on train data
+        train_data[col] = encoder.transform(train_data[col])  # Transform train data
+        test_data[col] = encoder.transform(test_data[col])  # Transform test data (ensure same encoding)
 
     # Gender binary encoding (0 for female, 1 for male)
     train_data['gender'] = train_data['gender'].apply(lambda x: 1 if x == 'M' else 0)
