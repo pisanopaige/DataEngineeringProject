@@ -1,11 +1,10 @@
-import pandas as pd
 import pickle
 import logging
 from s3fs import S3FileSystem
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+import tempfile
 
-# Set up logging
 log_filename = 'model_metrics.log'
 logging.basicConfig(
     filename=log_filename,
@@ -13,76 +12,49 @@ logging.basicConfig(
     format='%(asctime)s:%(levelname)s:%(message)s'
 )
 
-def upload_log_to_s3():
+def upload_to_s3(local_file, s3_path):
     s3 = S3FileSystem()
-    # S3 bucket directory for logs
-    DIR = 's3://ece5984-s3-pisanopaige/DataEngineeringProject/logs'
+    with open(local_file, 'rb') as f_local:
+        with s3.open(s3_path, 'wb') as f_s3:
+            f_s3.write(f_local.read())
 
-    # Upload log file to S3
-    with s3.open(f'{DIR}/{log_filename}', 'wb') as f:
-        with open(log_filename, 'rb') as local_file:
-            f.write(local_file.read())
-
-def log_model_metrics(metrics):
-    logging.info(f'Model Metrics: {metrics}')
-    upload_log_to_s3()
-
-def train_model():
+def train_and_save_random_forest():
     s3 = S3FileSystem()
-    # S3 bucket directory for data
-    DIR = 's3://ece5984-s3-pisanopaige/DataEngineeringProject/transformed_data'
+    DIR = 's3://ece5984-s3-pisanopaige/DataEngineeringProject/feature_extraction'
+    with s3.open(f'{DIR}/X_train_features.pkl', 'rb') as f_X:
+        X_train_features = pickle.load(f_X)
 
-    # Load transformed train data
-    with s3.open('{}/{}'.format(DIR, 'X_train_transformed.pkl'), 'rb') as f_X:
-        X_train_balanced = pickle.load(f_X)
-    with s3.open('{}/{}'.format(DIR, 'y_train_transformed.pkl'), 'rb') as f_y:
+    DIR_transformed = 's3://ece5984-s3-pisanopaige/DataEngineeringProject/transformed_data'
+    with s3.open(f'{DIR_transformed}/y_train_transformed.pkl', 'rb') as f_y:
         y_train_balanced = pickle.load(f_y)
-
-    # Load transformed test data
-    with s3.open('{}/{}'.format(DIR, 'test_data_transformed.pkl'), 'rb') as f_test:
+    with s3.open(f'{DIR_transformed}/test_data_transformed.pkl', 'rb') as f_test:
         test_data = pickle.load(f_test)
 
-    # Separate features and target variable for test data
     X_test = test_data.drop('is_fraud', axis=1)
     y_test = test_data['is_fraud']
 
-    # Initialize the Random Forest Classifier
     model = RandomForestClassifier(n_estimators=100, random_state=42)
-
-    # Train the model
-    model.fit(X_train_balanced, y_train_balanced)
-
-    # Make predictions
+    model.fit(X_train_features, y_train_balanced)
     predictions = model.predict(X_test)
 
-    # Calculate metrics
     accuracy = accuracy_score(y_test, predictions)
     precision = precision_score(y_test, predictions)
     recall = recall_score(y_test, predictions)
     f1 = f1_score(y_test, predictions)
+    metrics = {"accuracy": accuracy, "precision": precision, "recall": recall, "f1_score": f1}
+    logging.info(f"Model Metrics: {metrics}")
 
-    # Log metrics
-    metrics = {
-        "accuracy": accuracy,
-        "precision": precision,
-        "recall": recall,
-        "f1_score": f1
-    }
-    log_model_metrics(metrics)
+    with tempfile.TemporaryDirectory() as tempdir:
+        model_path = f"{tempdir}/random_forest_model.pkl"
+        with open(model_path, 'wb') as f_model:
+            pickle.dump(model, f_model)
 
-    # Initialize S3 file system and specify the S3 bucket directory for model outputs
-    DIR = 's3://ece5984-s3-pisanopaige/DataEngineeringProject/model_outputs'
-
-    # Push predictions and model directly to S3 bucket
-    with s3.open('{}/{}'.format(DIR, 'predictions.pkl'), 'wb') as f_pred:
-        f_pred.write(pickle.dumps(predictions))
-
-    with s3.open('{}/{}'.format(DIR, 'random_forest_model.pkl'), 'wb') as f_model:
-        f_model.write(pickle.dumps(model))
+        s3_dir = 's3://ece5984-s3-pisanopaige/DataEngineeringProject/model_outputs'
+        upload_to_s3(model_path, f'{s3_dir}/random_forest_model.pkl')
 
     return model
 
 if __name__ == "__main__":
-    # Train the model and log metrics
-    model = train_model()
+    train_and_save_random_forest()
+
 
