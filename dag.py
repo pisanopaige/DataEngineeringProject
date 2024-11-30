@@ -6,7 +6,7 @@ from datetime import datetime
 from batch_ingest import ingest_data
 from transform import transform_data
 from train_model import train_and_save_random_forest
-from feature_extraction import feature_extract  # Added the feature extraction import
+from feature_extract import feature_extract  # Added the feature extraction import
 # from visualize import visualize_data  # Commented out visualize task
 
 default_args = {
