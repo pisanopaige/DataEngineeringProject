@@ -1,6 +1,7 @@
 import pandas as pd
 from s3fs import S3FileSystem
 import pickle
+import numpy as np
 from imblearn.over_sampling import SMOTE
 from sklearn.preprocessing import StandardScaler
 
@@ -10,11 +11,8 @@ def transform_data():
     DIR = 's3://ece5984-s3-pisanopaige/DataEngineeringProject/batch_ingest/'
 
     # Load train and test data from S3 bucket
-    with s3.open('{}/{}'.format(DIR, 'train_data.pkl'), 'rb') as f_train:
-        train_data = pickle.load(f_train)
-
-    with s3.open('{}/{}'.format(DIR, 'test_data.pkl'), 'rb') as f_test:
-        test_data = pickle.load(f_test)
+    train_data = np.load(s3.open('{}/{}'.format(DIR, 'train_data.pkl')), allow_pickle=True)  # insert here
+    test_data = np.load(s3.open('{}/{}'.format(DIR, 'test_data.pkl')), allow_pickle=True)  # insert here
 
     # Remove any null values
     train_data.dropna(inplace=True)
