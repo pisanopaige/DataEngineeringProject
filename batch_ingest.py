@@ -32,10 +32,10 @@ def ingest_data():
     DIR = 's3://ece5984-s3-pisanopaige/DataEngineeringProject/batch_ingest/'
 
     # Push train and test data to S3 as pickle files
-    with s3.open(f'{DIR}/train_data.pkl', 'wb') as f_train:
+    with s3.open('{}/{}'.format(DIR, 'train_data.pkl'), 'wb') as f_train:
         f_train.write(pickle.dumps(train_data))
 
-    with s3.open(f'{DIR}/test_data.pkl', 'wb') as f_test:
+    with s3.open('{}/{}'.format(DIR, 'test_data.pkl'), 'wb') as f_test:
         f_test.write(pickle.dumps(test_data))
 
 if __name__ == "__main__":
