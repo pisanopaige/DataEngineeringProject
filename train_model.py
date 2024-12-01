@@ -5,6 +5,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 import tempfile
 import numpy as np
+import pandas as pd
 
 log_filename = 'model_metrics.log'
 logging.basicConfig(
