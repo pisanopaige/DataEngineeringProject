@@ -28,13 +28,13 @@ def transform_data():
     train_data['hour'] = train_data['trans_date_trans_time'].dt.hour
     train_data['day_of_week'] = train_data['trans_date_trans_time'].dt.dayofweek
     train_data['day_of_year'] = train_data['trans_date_trans_time'].dt.dayofyear
-    train_data['year'] = train_data['trans_date_trans_time'].dt.year  # Useful if trends change across years
+    train_data['year'] = train_data['trans_date_trans_time'].dt.year
 
     test_data['trans_date_trans_time'] = pd.to_datetime(test_data['trans_date_trans_time'])
     test_data['hour'] = test_data['trans_date_trans_time'].dt.hour
     test_data['day_of_week'] = test_data['trans_date_trans_time'].dt.dayofweek
     test_data['day_of_year'] = test_data['trans_date_trans_time'].dt.dayofyear
-    test_data['year'] = test_data['trans_date_trans_time'].dt.year  # Useful if trends change across years
+    test_data['year'] = test_data['trans_date_trans_time'].dt.year
 
     # Convert 'dob' to 'age' by subtracting from current year
     train_data['dob'] = pd.to_datetime(train_data['dob'])
@@ -51,11 +51,14 @@ def transform_data():
     categorical_cols = ['merchant', 'category', 'gender', 'job', 'state', 'city']
     encoder = LabelEncoder()
 
+    # Concatenate train and test data to encode both at once
+    combined_data = pd.concat([train_data[categorical_cols], test_data[categorical_cols]])
+
+    # Fit encoder on the combined data and transform both train and test
     for col in categorical_cols:
-        # Fit on train data and transform both train and test
-        encoder.fit(train_data[col])  # Fit only on train data
+        encoder.fit(combined_data[col])  # Fit encoder on combined data
         train_data[col] = encoder.transform(train_data[col])  # Transform train data
-        test_data[col] = encoder.transform(test_data[col])  # Transform test data (ensure same encoding)
+        test_data[col] = encoder.transform(test_data[col])  # Transform test data
 
     # Gender binary encoding (0 for female, 1 for male)
     train_data['gender'] = train_data['gender'].apply(lambda x: 1 if x == 'M' else 0)
@@ -90,6 +93,7 @@ def transform_data():
 
     # Return the transformed datasets
     return X_train_balanced, y_train_balanced, test_data
+
 
 if __name__ == "__main__":
     X_train_balanced, y_train_balanced, test_data = transform_data()
