@@ -4,6 +4,7 @@ from s3fs import S3FileSystem
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 import tempfile
+import numpy as np
 
 log_filename = 'model_metrics.log'
 logging.basicConfig(
@@ -67,6 +68,3 @@ def train_and_save_random_forest():
 
 if __name__ == "__main__":
     train_and_save_random_forest()
-
-
-
