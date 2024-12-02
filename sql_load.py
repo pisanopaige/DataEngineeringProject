@@ -21,7 +21,7 @@ def upload_data_to_sql():
         X_train_balanced = pickle.load(f_X_train)
     with s3.open(f'{DATA_DIR}/y_train_balanced.pkl', 'rb') as f_y_train:
         y_train_balanced = pickle.load(f_y_train)
-    with s3.open(f'{DATA_DIR}/X_test.pkl', 'rb') as f_X_test:
+    with s3.open(f'{DATA_DIR}/X_test_transformed.pkl', 'rb') as f_X_test:
         X_test = pickle.load(f_X_test)
     with s3.open(f'{DATA_DIR}/y_test.pkl', 'rb') as f_y_test:
         y_test = pickle.load(f_y_test)
