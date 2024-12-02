@@ -1,10 +1,12 @@
-import pandas as pd
-from s3fs import S3FileSystem
 import pickle
+from s3fs import S3FileSystem
 from sklearn.preprocessing import MinMaxScaler
 
 def feature_extract():
+    # Initialize S3
     s3 = S3FileSystem()
+
+    # Define S3 directory
     DIR = 's3://ece5984-s3-pisanopaige/DataEngineeringProject/transformed_data/'
 
     # Load balanced training features
@@ -24,4 +26,3 @@ def feature_extract():
 
 if __name__ == "__main__":
     X_train_features_path = feature_extract()
-

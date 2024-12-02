@@ -5,7 +5,7 @@ from airflow.utils.dates import days_ago
 from datetime import datetime
 from batch_ingest import ingest_data
 from transform import transform_data
-from train_model import train_and_save_random_forest
+from train_model import train_and_save_model
 from feature_extract import feature_extract  # Added the feature extraction import
 # from visualize import visualize_data  # Commented out visualize task
 
@@ -49,7 +49,7 @@ feature_extract_task = PythonOperator(
 
 train_task = PythonOperator(
     task_id='train_model',
-    python_callable=train_and_save_random_forest,
+    python_callable=train_and_save_model,
     dag=dag,
 )
 
