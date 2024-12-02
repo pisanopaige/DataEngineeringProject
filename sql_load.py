@@ -36,7 +36,7 @@ def upload_data_to_sql():
     cm_df = pd.DataFrame(cm, columns=['Pred_Legitimate', 'Pred_Fraudulent'],
                          index=['Actual_Legitimate', 'Actual_Fraudulent'])
     importances = model.feature_importances_
-    feature_names = X_test.columns
+    feature_names = [f'feature_{i}' for i in range(X_test.shape[1])]  # Ensure feature names are generated
     feature_importance_df = pd.DataFrame({
         'Feature': feature_names,
         'Importance': importances
@@ -78,7 +78,6 @@ def upload_data_to_sql():
         X_test_df.to_sql('X_test', con=engine, if_exists='replace', index=False)
         y_train_df.to_sql('y_train', con=engine, if_exists='replace', index=False)
         y_test_df.to_sql('y_test', con=engine, if_exists='replace', index=False)
-
 
 if __name__ == "__main__":
     upload_data_to_sql()
