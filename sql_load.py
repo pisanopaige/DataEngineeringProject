@@ -3,6 +3,8 @@ import logging
 from s3fs import S3FileSystem
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, roc_auc_score
 import pandas as pd
+from sklearn.model_selection import cross_val_score
+import numpy as np
 from sqlalchemy import create_engine
 
 # Configure logging
@@ -12,6 +14,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s:%(levelname)s:%(message)s'
 )
+
 
 def upload_data_to_sql():
     # Initialize S3
@@ -85,6 +88,23 @@ def upload_data_to_sql():
         'ROC_AUC': [roc_auc]
     })
 
+    # Cross-validation metrics
+    cross_val_scores = cross_val_score(model, X_train_balanced, y_train_balanced, cv=5, scoring='accuracy')
+    cross_val_df = pd.DataFrame({
+        'Cross-Val Accuracy': cross_val_scores,
+        'Mean Accuracy': np.mean(cross_val_scores),
+        'Std Accuracy': np.std(cross_val_scores)
+    })
+
+    # Store hyperparameters
+    hyperparameters_df = pd.DataFrame({
+        'Hyperparameter': ['n_estimators', 'max_depth', 'min_samples_split', 'min_samples_leaf'],
+        'Value': [model.n_estimators, model.max_depth, model.min_samples_split, model.min_samples_leaf]
+    })
+
+    # Correlation matrix
+    corr_matrix = pd.DataFrame(X_train_balanced, columns=feature_names).corr()
+
     # Create sqlalchemy engine to connect to MySQL
     user = "admin"
     pw = "C|r(kf!$]8c.1smc.HxN<D$v_S(Z"  # Update with actual password
@@ -102,6 +122,9 @@ def upload_data_to_sql():
         precision_recall_df.to_sql('precision_recall_metrics', con=engine, if_exists='replace', index=False)
         cm_detailed_df.to_sql('confusion_matrix_detailed', con=engine, if_exists='replace', index=False)
         metrics_history_df.to_sql('model_metrics_history', con=engine, if_exists='replace', index=False)
+        cross_val_df.to_sql('cross_validation_metrics', con=engine, if_exists='replace', index=False)
+        hyperparameters_df.to_sql('model_hyperparameters', con=engine, if_exists='replace', index=False)
+        corr_matrix.to_sql('feature_correlations', con=engine, if_exists='replace', index=False)
 
         # Insert transformed data
         X_train_df = pd.DataFrame(X_train_balanced, columns=feature_names)
@@ -114,6 +137,7 @@ def upload_data_to_sql():
         X_test_df.to_sql('X_test', con=engine, if_exists='replace', index=False)
         y_train_df.to_sql('y_train', con=engine, if_exists='replace', index=False)
         y_test_df.to_sql('y_test', con=engine, if_exists='replace', index=False)
+
 
 if __name__ == "__main__":
     upload_data_to_sql()
