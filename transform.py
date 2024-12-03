@@ -1,9 +1,9 @@
 import pandas as pd
-from s3fs import S3FileSystem
 import pickle
+from s3fs import S3FileSystem
 from sklearn.preprocessing import StandardScaler, LabelEncoder
-from imblearn.over_sampling import SMOTE
 from datetime import datetime
+from imblearn.over_sampling import SMOTE
 
 def transform_data():
     # Initialize S3
@@ -17,7 +17,6 @@ def transform_data():
     test_data = pd.read_pickle(s3.open(f'{DIR}test_data.pkl', 'rb'))
 
     # Perform data cleaning
-    # Drop empty cells
     train_data.dropna(inplace=True)
     test_data.dropna(inplace=True)
 
@@ -35,7 +34,7 @@ def transform_data():
         df['dob'] = pd.to_datetime(df['dob'])
         df['age'] = (datetime.now() - df['dob']).dt.days // 365
 
-    # Drop the original data and time based columns
+    # Drop the original date and time based columns
     train_data.drop(columns=['dob', 'trans_date_trans_time'], inplace=True)
     test_data.drop(columns=['dob', 'trans_date_trans_time'], inplace=True)
 
@@ -49,8 +48,8 @@ def transform_data():
         test_data[col] = encoder.transform(test_data[col])
 
     # Drop unnecessary columns
-    train_data.drop(columns=['cc_num', 'first', 'last'], inplace=True)
-    test_data.drop(columns=['cc_num', 'first', 'last'], inplace=True)
+    train_data.drop(columns=['first', 'last'], inplace=True)
+    test_data.drop(columns=['first', 'last'], inplace=True)
 
     # Separate features and target
     X_train = train_data.drop('is_fraud', axis=1)
@@ -58,14 +57,14 @@ def transform_data():
     X_test = test_data.drop('is_fraud', axis=1)
     y_test = test_data['is_fraud']
 
-    # Scale features
+    # Scale features while keeping feature names
     numeric_cols = X_train.select_dtypes(include=['number']).columns
     X_train_numeric = X_train[numeric_cols]
     scaler = StandardScaler()
-    X_train_scaled = scaler.fit_transform(X_train_numeric)
+    X_train_scaled = pd.DataFrame(scaler.fit_transform(X_train_numeric), columns=X_train_numeric.columns, index=X_train.index)
 
     X_test_numeric = X_test[numeric_cols]
-    X_test_scaled = scaler.transform(X_test_numeric)
+    X_test_scaled = pd.DataFrame(scaler.transform(X_test_numeric), columns=X_test_numeric.columns, index=X_test.index)
 
     # Save transformed datasets
     transformed_dir = 's3://ece5984-s3-pisanopaige/DataEngineeringProject/transformed_data//'
@@ -78,13 +77,19 @@ def transform_data():
     with s3.open(f'{transformed_dir}y_test.pkl', 'wb') as f_y_test:
         pickle.dump(y_test, f_y_test)
 
-    # Apply SMOTE to balance training data
+    # Apply SMOTE to balance training data and retain feature names
     smote = SMOTE()
     X_train_balanced, y_train_balanced = smote.fit_resample(X_train_scaled, y_train)
+
+    # Reset indices to avoid shape issues
+    X_train_balanced_df = pd.DataFrame(X_train_balanced, columns=X_train_scaled.columns)
+    y_train_balanced_df = pd.DataFrame(y_train_balanced, columns=['is_fraud'])
+
+    # Save balanced data
     with s3.open(f'{transformed_dir}X_train_balanced.pkl', 'wb') as f_balanced:
-        pickle.dump(X_train_balanced, f_balanced)
+        pickle.dump(X_train_balanced_df, f_balanced)
     with s3.open(f'{transformed_dir}y_train_balanced.pkl', 'wb') as f_y_balanced:
-        pickle.dump(y_train_balanced, f_y_balanced)
+        pickle.dump(y_train_balanced_df, f_y_balanced)
 
     return f'{transformed_dir}X_train_transformed.pkl', f'{transformed_dir}y_train_transformed.pkl', f'{transformed_dir}X_train_balanced.pkl', f'{transformed_dir}y_train_balanced.pkl', f'{transformed_dir}X_test_transformed.pkl', f'{transformed_dir}y_test.pkl'
 

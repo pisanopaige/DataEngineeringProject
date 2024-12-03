@@ -41,6 +41,10 @@ def train_and_save_model():
     with s3.open(f'{DIR_transformed}/y_test.pkl', 'rb') as f_y_test:
         y_test = pickle.load(f_y_test)
 
+    # Save feature names to S3
+    with s3.open(f'{DIR_features}/feature_names.pkl', 'wb') as f_names:
+        pickle.dump(X_train_features.columns.tolist(), f_names)
+
     # Train the Random Forest model
     model = RandomForestClassifier(n_estimators=100, random_state=42)
     model.fit(X_train_features, y_train_balanced)

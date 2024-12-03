@@ -1,3 +1,4 @@
+import pandas as pd
 import pickle
 from s3fs import S3FileSystem
 from sklearn.preprocessing import MinMaxScaler
@@ -17,12 +18,16 @@ def feature_extract():
     scaler = MinMaxScaler()
     X_train_scaled = scaler.fit_transform(X_train_balanced)
 
+    # Convert back to DataFrame and retain feature names
+    X_train_scaled_df = pd.DataFrame(X_train_scaled, columns=X_train_balanced.columns)
+
     # Save the scaled features to S3
     feature_dir = 's3://ece5984-s3-pisanopaige/DataEngineeringProject/feature_extraction/'
     with s3.open(f'{feature_dir}/X_train_features.pkl', 'wb') as f_X_features:
-        pickle.dump(X_train_scaled, f_X_features)
+        pickle.dump(X_train_scaled_df, f_X_features)
 
     return f'{feature_dir}/X_train_features.pkl'
 
 if __name__ == "__main__":
     X_train_features_path = feature_extract()
+
