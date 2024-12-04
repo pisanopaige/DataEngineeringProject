@@ -9,6 +9,7 @@ This dataset includes both training and testing sets with over 500,000 simulated
 to each transaction, such as the amount, time, location, merchant details, and credit card owner information. Additionally, each datapoint is labeled as either 
 legitimate or fraudulent, using 0 or 1, respectively. The format of this dataset is ideal for using supervised learning techniques to train a model. 
 
+
 This project will use the Batch – ML – Visualization pipeline to detect fraudulent transactions. The data ingestion portion of this piplines requires Kaggle API 
 to download the dataset. The transformation portion of this pipline will require Pandas and NumPy to clean, scale, and manipulate the data. The machine learning 
 portion of this pipeline requires a Random Forest Classifer which is best-suited for imbalanced datasets. And the visualization portion requires Tableau. To
@@ -19,3 +20,7 @@ efforts. The variety of entries is adequate because while it is simulated data, 
 the lack of fraudulent transactions within the dataset, the proportion of fraudulent to legitimate transactions is not equal and therefore presents more of 
 challenge when training the Ml algorithm to detect.
 
+The data set was cleaned and preprocessed to provide the highest efficiency for our machine learning model. The transform.py script cleans the data by eliminating 
+null or duplicate values. The process of standardization was also taken so all features were weighted equally to prevent large variations in the data. As previously 
+referenced, Kaggle API was used to access the dataset. Our final result was an accurate identification of trends that allow differentiation between fraudulent and 
+legitimate transactions. 
