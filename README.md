@@ -24,3 +24,9 @@ The data set was cleaned and preprocessed to provide the highest efficiency for 
 null or duplicate values. The process of standardization was also taken so all features were weighted equally to prevent large variations in the data. As previously 
 referenced, Kaggle API was used to access the dataset. Our final result was an accurate identification of trends that allow differentiation between fraudulent and 
 legitimate transactions. 
+
+In order to scale this project up we would need a larger data set with a larger variety of transaction variables and an overall greater number of fraudulent
+transactions within the dataset. Our project demonstrated many of the tools and approaches used in previous labs so while our project was a success, it cannot be categorized as innovative. We did not face any major technical issues or limitations while creating the pipeline. The next steps for this project would be to curate 
+a larger dataset that will allow for a more accurate machine learning model.
+
+
