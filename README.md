@@ -29,8 +29,10 @@ In order to scale this project up we would need a larger data set with a larger 
 transactions within the dataset. Our project demonstrated many of the tools and approaches used in previous labs so while our project was a success, it cannot be categorized as innovative. We did not face any major technical issues or limitations while creating the pipeline. The next steps for this project would be to curate 
 a larger dataset that will allow for a more accurate machine learning model.
 
-<img width="614" alt="image" src="https://github.com/user-attachments/assets/b07b5ead-94ef-4e03-b78d-8969d55847f5">
 
 <img width="302" alt="image" src="https://github.com/user-attachments/assets/df8b781c-e72a-478d-a3f5-ff4f77dd7fa2">
 
+
+
+<img width="614" alt="image" src="https://github.com/user-attachments/assets/b07b5ead-94ef-4e03-b78d-8969d55847f5">
 
