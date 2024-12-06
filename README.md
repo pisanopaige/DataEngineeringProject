@@ -40,6 +40,7 @@ In order to scale this project up we would need a larger dataset that encompasse
 **Infographic**
 
 
-<img width="592" alt="image" src="https://github.com/user-attachments/assets/680b0318-e5c9-4947-bc95-e603bcd241f0">
+<img width="515" alt="image" src="https://github.com/user-attachments/assets/95474fb7-fcc5-4c5a-81d5-3207d02c7a87">
+
 
 
